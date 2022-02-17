@@ -2,7 +2,7 @@ package com.blackknight.mealbook.network.response
 
 import com.google.gson.annotations.SerializedName
 
-data class MealFullResponse(
+data class MealRecipeResponse(
     @SerializedName("idMeal") val idMeal: String,
     @SerializedName("strMeal") val strMeal: String,
     @SerializedName("strCategory") val strCategory: String,
