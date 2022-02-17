@@ -3,14 +3,12 @@ package com.blackknight.mealbook.network.response
 import com.google.gson.annotations.SerializedName
 
 data class MealRecipeResponse(
-    @SerializedName("idMeal") val idMeal: String,
-    @SerializedName("strMeal") val strMeal: String,
-    @SerializedName("strCategory") val strCategory: String,
-    @SerializedName("strArea") val strArea: String? = null,
-    @SerializedName("strInstructions") val strInstructions: String? = null,
-    @SerializedName("strMealThumb") val strMealThumb: String? = null,
-    @SerializedName("strTags") val strTags: String? = null,
-    @SerializedName("strYoutube") val strYoutube: String? = null,
+    @SerializedName("idMeal") val id: String,
+    @SerializedName("strMeal") val name: String,
+    @SerializedName("strCategory") val categories: String,
+    @SerializedName("strInstructions") val instructions: String? = null,
+    @SerializedName("strMealThumb") val thumbnail: String? = null,
+    @SerializedName("strYoutube") val youtube: String? = null,
     @SerializedName("strIngredient1") val strIngredient1: String? = null,
     @SerializedName("strIngredient2") val strIngredient2: String? = null,
     @SerializedName("strIngredient3") val strIngredient3: String? = null,
