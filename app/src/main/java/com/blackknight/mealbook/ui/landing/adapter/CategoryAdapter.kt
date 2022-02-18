@@ -1,4 +1,4 @@
-package com.blackknight.mealbook.landing.adapter
+package com.blackknight.mealbook.ui.landing.adapter
 
 import android.view.LayoutInflater
 import android.view.View

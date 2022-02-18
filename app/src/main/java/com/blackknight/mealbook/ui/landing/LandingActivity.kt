@@ -1,4 +1,4 @@
-package com.blackknight.mealbook.landing
+package com.blackknight.mealbook.ui.landing
 
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -6,8 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blackknight.mealbook.R
-import com.blackknight.mealbook.landing.adapter.CategoryAdapter
-import com.blackknight.mealbook.landing.adapter.MealAdapter
+import com.blackknight.mealbook.ui.landing.adapter.CategoryAdapter
+import com.blackknight.mealbook.ui.landing.adapter.MealAdapter
 import com.blackknight.mealbook.util.defaultErrorHandler
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.disposables.CompositeDisposable

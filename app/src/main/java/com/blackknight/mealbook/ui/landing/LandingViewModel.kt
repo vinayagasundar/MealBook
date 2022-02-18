@@ -1,11 +1,11 @@
-package com.blackknight.mealbook.landing
+package com.blackknight.mealbook.ui.landing
 
 import androidx.lifecycle.ViewModel
 import com.blackknight.mealbook.data.entities.Category
 import com.blackknight.mealbook.data.entities.Meal
 import com.blackknight.mealbook.data.repo.CategoryRepo
 import com.blackknight.mealbook.data.repo.MealRepo
-import com.blackknight.mealbook.landing.adapter.CategoryItem
+import com.blackknight.mealbook.ui.landing.adapter.CategoryItem
 import com.blackknight.mealbook.util.Optional
 import com.blackknight.mealbook.util.SchedulerProvider
 import dagger.hilt.android.lifecycle.HiltViewModel

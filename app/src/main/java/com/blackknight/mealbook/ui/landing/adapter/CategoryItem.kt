@@ -1,4 +1,4 @@
-package com.blackknight.mealbook.landing.adapter
+package com.blackknight.mealbook.ui.landing.adapter
 
 import com.blackknight.mealbook.data.entities.Category
 
