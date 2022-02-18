@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">MealBook</string>
+    <string name="app_name">Meal Book</string>
+
+    <string name="landing_category_title">Category</string>
 </resources>

@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.lifecycle.ktx)
     implementation(libs.material)
     implementation(libs.constraintlayout)
+    implementation(libs.coil)
     implementation(libs.dagger.hilt)
     implementation(libs.bundles.retrofit)
     implementation(libs.bundles.room)

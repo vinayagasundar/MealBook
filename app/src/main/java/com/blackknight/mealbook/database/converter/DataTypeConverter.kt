@@ -5,7 +5,7 @@ import com.blackknight.mealbook.data.entities.Ingredient
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class DataTypeConverter {
+object DataTypeConverter {
     private val gson by lazy { Gson() }
     private val typeToken by lazy {
         object : TypeToken<List<Ingredient>>() {}.type
