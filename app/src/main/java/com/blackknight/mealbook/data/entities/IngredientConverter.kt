@@ -1,11 +1,10 @@
-package com.blackknight.mealbook.database.converter
+package com.blackknight.mealbook.data.entities
 
 import androidx.room.TypeConverter
-import com.blackknight.mealbook.data.entities.Ingredient
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-object DataTypeConverter {
+object IngredientConverter {
     private val gson by lazy { Gson() }
     private val typeToken by lazy {
         object : TypeToken<List<Ingredient>>() {}.type

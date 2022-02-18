@@ -7,7 +7,7 @@ import com.blackknight.mealbook.data.MealDatabase
 import com.blackknight.mealbook.data.entities.Category
 import com.blackknight.mealbook.data.entities.Meal
 import com.blackknight.mealbook.data.entities.Recipe
-import com.blackknight.mealbook.database.converter.DataTypeConverter
+import com.blackknight.mealbook.data.entities.IngredientConverter
 
 @Database(
     entities = [
@@ -18,7 +18,7 @@ import com.blackknight.mealbook.database.converter.DataTypeConverter
     version = RoomMealDatabase.VERSION
 )
 @TypeConverters(
-    DataTypeConverter::class
+    IngredientConverter::class
 )
 abstract class RoomMealDatabase : RoomDatabase(), MealDatabase {
     companion object {

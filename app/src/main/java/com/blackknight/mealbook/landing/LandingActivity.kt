@@ -1,34 +1,26 @@
 package com.blackknight.mealbook.landing
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blackknight.mealbook.R
-import com.blackknight.mealbook.data.daos.CategoryDao
-import com.blackknight.mealbook.data.entities.Category
-import com.blackknight.mealbook.data.mapper.Mapper
-import com.blackknight.mealbook.network.MealDBService
-import com.blackknight.mealbook.network.response.CategoryResponse
+import com.blackknight.mealbook.landing.adapter.CategoryAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class LandingActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var service: MealDBService
-
-    @Inject
-    lateinit var categoryDao: CategoryDao
-
-    @Inject
-    lateinit var categoryMapper: Mapper<CategoryResponse, Category>
-
-    @Inject
     lateinit var categoryAdapter: CategoryAdapter
+
+    private val disposable = CompositeDisposable()
+
+    private val viewModel by viewModels<LandingViewModel>()
 
     private val categoryRecyclerView by lazy(LazyThreadSafetyMode.NONE) {
         findViewById<RecyclerView>(
@@ -43,18 +35,25 @@ class LandingActivity : AppCompatActivity() {
         categoryRecyclerView.apply {
             adapter = categoryAdapter
             (layoutManager as? LinearLayoutManager)?.orientation = LinearLayoutManager.HORIZONTAL
+            itemAnimator = null
         }
 
-        service.getCategories()
-            .map { response ->
-                response.list.map { from ->
-                    categoryMapper.map(from)
+        categoryAdapter.setOnClickHandler {
+            viewModel.onClickCategoryItem(it)
+        }
+
+        disposable.add(
+            viewModel.observeViewState()
+                .subscribeBy { state ->
+                    if (state.categories.isNotEmpty()) {
+                        categoryAdapter.submitList(state.categories)
+                    }
                 }
-            }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { value ->
-                categoryAdapter.submitList(value)
-            }
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposable.dispose()
     }
 }

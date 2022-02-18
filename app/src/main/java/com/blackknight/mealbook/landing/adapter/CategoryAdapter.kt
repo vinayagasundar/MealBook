@@ -1,4 +1,4 @@
-package com.blackknight.mealbook.landing
+package com.blackknight.mealbook.landing.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -13,36 +13,45 @@ import coil.request.Disposable
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.blackknight.mealbook.R
-import com.blackknight.mealbook.data.entities.Category
 import com.blackknight.mealbook.util.getThemeColor
 import dagger.hilt.android.scopes.ActivityScoped
 import javax.inject.Inject
 
-private val DIFF = object : DiffUtil.ItemCallback<Category>() {
-    override fun areItemsTheSame(oldItem: Category, newItem: Category): Boolean {
-        return oldItem.id == newItem.id
+private val DIFF = object : DiffUtil.ItemCallback<CategoryItem>() {
+    override fun areItemsTheSame(oldItem: CategoryItem, newItem: CategoryItem): Boolean {
+        return oldItem.category.id == newItem.category.id
     }
 
-    override fun areContentsTheSame(oldItem: Category, newItem: Category): Boolean {
+    override fun areContentsTheSame(oldItem: CategoryItem, newItem: CategoryItem): Boolean {
         return oldItem == newItem
     }
 }
 
 @ActivityScoped
 class CategoryAdapter @Inject constructor() :
-    ListAdapter<Category, CategoryAdapter.CategoryViewHolder>(DIFF) {
+    ListAdapter<CategoryItem, CategoryAdapter.CategoryViewHolder>(DIFF) {
+
+    private var handler: CategoryOnClickHandler? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.item_category, parent, false)
-        return CategoryViewHolder(view)
+        return CategoryViewHolder(view, handler)
     }
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    class CategoryViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
+    fun setOnClickHandler(clickHandler: CategoryOnClickHandler) {
+        handler = clickHandler
+    }
+
+    class CategoryViewHolder(
+        private val view: View,
+        private val handler: CategoryOnClickHandler?
+    ) : RecyclerView.ViewHolder(view) {
+
         private val name by lazy(LazyThreadSafetyMode.NONE) {
             view.findViewById<TextView>(R.id.tv_category_name)
         }
@@ -52,9 +61,10 @@ class CategoryAdapter @Inject constructor() :
         private val imageLoader by lazy { view.context.imageLoader }
         private var disposable: Disposable? = null
 
-        fun bind(category: Category) {
+        fun bind(item: CategoryItem) {
+            val category = item.category
             name.text = category.name
-            if (category.name == "Beef") {
+            if (item.isSelected) {
                 name.setTextColor(
                     view.getThemeColor(com.google.android.material.R.attr.colorPrimary)
                 )
@@ -71,6 +81,14 @@ class CategoryAdapter @Inject constructor() :
                 .target(image)
                 .build()
             disposable = imageLoader.enqueue(request)
+
+            view.setOnClickListener {
+                handler?.onClick(item)
+            }
         }
+    }
+
+    fun interface CategoryOnClickHandler {
+        fun onClick(item: CategoryItem)
     }
 }
