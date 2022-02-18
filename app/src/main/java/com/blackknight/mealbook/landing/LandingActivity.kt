@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blackknight.mealbook.R
 import com.blackknight.mealbook.landing.adapter.CategoryAdapter
+import com.blackknight.mealbook.landing.adapter.MealAdapter
+import com.blackknight.mealbook.util.defaultErrorHandler
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -18,14 +20,19 @@ class LandingActivity : AppCompatActivity() {
     @Inject
     lateinit var categoryAdapter: CategoryAdapter
 
+    @Inject
+    lateinit var mealAdapter: MealAdapter
+
     private val disposable = CompositeDisposable()
 
     private val viewModel by viewModels<LandingViewModel>()
 
     private val categoryRecyclerView by lazy(LazyThreadSafetyMode.NONE) {
-        findViewById<RecyclerView>(
-            R.id.rv_category
-        )
+        findViewById<RecyclerView>(R.id.rv_category)
+    }
+
+    private val mealRecyclerView by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<RecyclerView>(R.id.rv_meal)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,15 +45,24 @@ class LandingActivity : AppCompatActivity() {
             itemAnimator = null
         }
 
+        mealRecyclerView.apply {
+            itemAnimator = null
+            adapter = mealAdapter
+        }
+
         categoryAdapter.setOnClickHandler {
             viewModel.onClickCategoryItem(it)
         }
 
         disposable.add(
             viewModel.observeViewState()
-                .subscribeBy { state ->
+                .subscribeBy(defaultErrorHandler) { state ->
                     if (state.categories.isNotEmpty()) {
                         categoryAdapter.submitList(state.categories)
+                    }
+
+                    if (state.meals.isNotEmpty()) {
+                        mealAdapter.submitList(state.meals)
                     }
                 }
         )

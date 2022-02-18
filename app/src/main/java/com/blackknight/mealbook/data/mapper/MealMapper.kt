@@ -9,7 +9,8 @@ class MealMapper @Inject constructor() : Mapper<MealResponse, Meal> {
         return Meal(
             id = from.id,
             name = from.name,
-            thumbnail = from.thumbnail
+            thumbnail = from.thumbnail,
+            categoryId = ""
         )
     }
 }

@@ -13,6 +13,7 @@ import coil.request.Disposable
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.blackknight.mealbook.R
+import com.blackknight.mealbook.util.defaultErrorHandler
 import com.blackknight.mealbook.util.getThemeColor
 import dagger.hilt.android.scopes.ActivityScoped
 import javax.inject.Inject
@@ -73,11 +74,16 @@ class CategoryAdapter @Inject constructor() :
                     view.getThemeColor(com.google.android.material.R.attr.colorOnBackground)
                 )
             }
-            image.setImageResource(R.drawable.ic_launcher_foreground)
+
             disposable?.dispose()
             val request = ImageRequest.Builder(view.context)
+                .placeholder(R.drawable.ic_restaurent)
+                .error(R.drawable.ic_restaurent)
                 .data(category.thumbnail)
                 .transformations(CircleCropTransformation())
+                .listener(onError = { _, e ->
+                    defaultErrorHandler(e)
+                })
                 .target(image)
                 .build()
             disposable = imageLoader.enqueue(request)

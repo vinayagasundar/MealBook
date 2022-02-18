@@ -8,5 +8,6 @@ data class Meal(
     @PrimaryKey
     val id: String,
     val name: String,
-    val thumbnail: String
+    val thumbnail: String,
+    val categoryId: String
 )

@@ -2,4 +2,5 @@
     <string name="app_name">Meal Book</string>
 
     <string name="landing_category_title">Category</string>
+    <string name="landing_recipe_title">Recipes</string>
 </resources>
