@@ -55,4 +55,6 @@
     <color name="md_theme_dark_inversePrimary">#BE0D00</color>
     <color name="md_theme_dark_shadow">#000000</color>
     <color name="md_theme_dark_primaryInverse">#BE0D00</color>
+
+    <color name="shimmer_placeholder">#dddddd</color>
 </resources>

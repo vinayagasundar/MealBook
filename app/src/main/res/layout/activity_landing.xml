@@ -17,6 +17,17 @@
         app:title="@string/app_name"
         app:titleTextColor="?attr/colorOnPrimary" />
 
+    <include
+        android:id="@+id/loading_category"
+        layout="@layout/layout_loading_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_small"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
     <TextView
         android:id="@+id/tv_title_category"
         style="@style/TextAppearance.Material3.LabelLarge"
@@ -25,9 +36,10 @@
         android:padding="@dimen/space_normal"
         android:text="@string/landing_category_title"
         android:textColor="?attr/colorPrimary"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/loading_category" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_category"
@@ -35,10 +47,22 @@
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/space_small"
         android:paddingBottom="@dimen/space_small"
+        android:visibility="gone"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title_category" />
+
+    <include
+        android:id="@+id/loading_recipe"
+        layout="@layout/layout_loading_recipe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_small"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rv_category" />
 
     <TextView
         android:id="@+id/tv_title_recipe"
@@ -48,18 +72,20 @@
         android:padding="@dimen/space_normal"
         android:text="@string/landing_recipe_title"
         android:textColor="?attr/colorPrimary"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rv_category" />
+        app:layout_constraintTop_toBottomOf="@id/loading_recipe" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_meal"
+        android:id="@+id/rv_recipe"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:paddingStart="@dimen/space_normal"
         android:paddingTop="@dimen/space_small"
         android:paddingEnd="@dimen/space_normal"
         android:paddingBottom="@dimen/space_small"
+        android:visibility="gone"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

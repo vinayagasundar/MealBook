@@ -1,6 +1,7 @@
 package com.blackknight.mealbook.ui.landing
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,25 +29,41 @@ class LandingActivity : AppCompatActivity() {
 
     private val viewModel by viewModels<LandingViewModel>()
 
-    private val categoryRecyclerView by lazy(LazyThreadSafetyMode.NONE) {
+    private val loadingCategory by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<View>(R.id.loading_category)
+    }
+
+    private val loadingRecipe by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<View>(R.id.loading_recipe)
+    }
+
+    private val tvTitleCategory by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<View>(R.id.tv_title_category)
+    }
+
+    private val rvCategories by lazy(LazyThreadSafetyMode.NONE) {
         findViewById<RecyclerView>(R.id.rv_category)
     }
 
-    private val mealRecyclerView by lazy(LazyThreadSafetyMode.NONE) {
-        findViewById<RecyclerView>(R.id.rv_meal)
+    private val tvRecipeTitle by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<View>(R.id.tv_title_recipe)
+    }
+
+    private val rvRecipe by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<RecyclerView>(R.id.rv_recipe)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_landing)
 
-        categoryRecyclerView.apply {
+        rvCategories.apply {
             adapter = categoryAdapter
             (layoutManager as? LinearLayoutManager)?.orientation = LinearLayoutManager.HORIZONTAL
             itemAnimator = null
         }
 
-        mealRecyclerView.apply {
+        rvRecipe.apply {
             itemAnimator = null
             adapter = mealAdapter
         }
@@ -62,6 +79,12 @@ class LandingActivity : AppCompatActivity() {
         disposable.add(
             viewModel.observeViewState()
                 .subscribeBy(defaultErrorHandler) { state ->
+                    when (state.loadingState) {
+                        is LoadingState.FullLoading -> fullLoading()
+                        is LoadingState.RecipeOnlyLoading -> recipeOnlyLoading()
+                        is LoadingState.Hide -> hide()
+                    }
+
                     if (state.categories.isNotEmpty()) {
                         categoryAdapter.submitList(state.categories)
                     }
@@ -71,6 +94,39 @@ class LandingActivity : AppCompatActivity() {
                     }
                 }
         )
+    }
+
+    private fun hide() {
+        loadingCategory.visibility = View.GONE
+        loadingRecipe.visibility = View.GONE
+
+        tvTitleCategory.visibility = View.VISIBLE
+        rvCategories.visibility = View.VISIBLE
+
+        tvRecipeTitle.visibility = View.VISIBLE
+        rvRecipe.visibility = View.VISIBLE
+    }
+
+    private fun recipeOnlyLoading() {
+        loadingCategory.visibility = View.GONE
+        loadingRecipe.visibility = View.VISIBLE
+
+        tvTitleCategory.visibility = View.VISIBLE
+        rvCategories.visibility = View.VISIBLE
+
+        tvRecipeTitle.visibility = View.GONE
+        rvRecipe.visibility = View.GONE
+    }
+
+    private fun fullLoading() {
+        loadingCategory.visibility = View.VISIBLE
+        loadingRecipe.visibility = View.VISIBLE
+
+        tvTitleCategory.visibility = View.GONE
+        rvCategories.visibility = View.GONE
+
+        tvRecipeTitle.visibility = View.GONE
+        rvRecipe.visibility = View.GONE
     }
 
     override fun onDestroy() {

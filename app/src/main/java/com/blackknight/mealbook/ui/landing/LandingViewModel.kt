@@ -14,8 +14,14 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.PublishSubject
 import javax.inject.Inject
 
+sealed class LoadingState {
+    object FullLoading : LoadingState()
+    object RecipeOnlyLoading : LoadingState()
+    object Hide : LoadingState()
+}
+
 data class LandingViewState(
-    val isLoading: Boolean,
+    val loadingState: LoadingState,
     val categories: List<CategoryItem> = emptyList(),
     val meals: List<Meal> = emptyList()
 )
@@ -35,17 +41,17 @@ internal class LandingViewModel @Inject constructor(
 
     fun observeViewState(): Observable<LandingViewState> {
         return observeCategories().observeOn(schedulerProvider.io())
-            .switchMapSingle { categories ->
+            .switchMap { categories ->
                 val selectedCategory = categories.firstOrNull { it.isSelected }?.category
                 if (selectedCategory != null) {
                     mealRepo.getMealList(selectedCategory)
                         .map {
-                            LandingViewState(false, categories, it)
-                        }
+                            LandingViewState(LoadingState.Hide, categories, it)
+                        }.toObservable()
                 } else {
-                    Single.just(LandingViewState(false, categories))
-                }
-            }.startWithItem(LandingViewState(true))
+                    Observable.just(LandingViewState(LoadingState.RecipeOnlyLoading, categories))
+                }.startWithItem(LandingViewState(LoadingState.RecipeOnlyLoading, categories))
+            }.startWithItem(LandingViewState(LoadingState.FullLoading))
             .subscribeOn(schedulerProvider.io())
             .observeOn(schedulerProvider.main())
     }
