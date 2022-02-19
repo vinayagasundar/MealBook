@@ -12,6 +12,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -36,7 +37,7 @@ class CategoryRepoImplTest {
     }
 
     @Test
-    fun `when getCategories invoked and dao return empty list and call api service `() {
+    fun `when getCategories invoked if service return list then save it local and return list`() {
         val categoryResponse = CategoryResponse(
             id = "id",
             name = "name",
@@ -52,7 +53,6 @@ class CategoryRepoImplTest {
         )
         val categories = listOf(category)
 
-        whenever(categoryDao.getCategories()).thenReturn(Single.just(emptyList()))
         whenever(mealDBService.getCategories()).thenReturn(Single.just(response))
         whenever(mapper.map(categoryResponse)).thenReturn(category)
         whenever(categoryDao.insertOrUpdate(categories)).thenReturn(Completable.complete())
@@ -63,10 +63,11 @@ class CategoryRepoImplTest {
             .assertNoErrors()
             .assertComplete()
             .dispose()
+        verify(categoryDao, never()).getCategories()
     }
 
     @Test
-    fun `when getCategories invoked and dao return list and should not api service`() {
+    fun `when getCategories invoked and service throws error check the local database for result`() {
         val category = Category(
             id = "id",
             name = "name",
@@ -75,6 +76,7 @@ class CategoryRepoImplTest {
         )
         val categories = listOf(category)
 
+        whenever(mealDBService.getCategories()).thenReturn(Single.error(Exception("Error")))
         whenever(categoryDao.getCategories()).thenReturn(Single.just(categories))
 
         categoryRepo.getCategories()
@@ -84,7 +86,6 @@ class CategoryRepoImplTest {
             .assertComplete()
             .dispose()
 
-        verify(mealDBService, never()).getCategories()
-        verify(categoryDao, never()).insertOrUpdate(categories)
+        verify(mapper, never()).map(any())
     }
 }

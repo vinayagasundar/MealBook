@@ -7,7 +7,6 @@ okhttp = "4.9.0"
 dagger = "2.40.5"
 coroutine = "1.3.9"
 room = "2.4.1"
-datastore = "1.0.0"
 rxjava = "3.0.0"
 material = "1.6.0-alpha02"
 constraint = "2.1.3"
@@ -41,8 +40,6 @@ rxjava-kotlin = { module = "io.reactivex.rxjava3:rxkotlin", version.ref = "rxjav
 room-core = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-rxjava = { module = "androidx.room:room-rxjava3", version.ref = "room" }
-
-datastore = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 
 material = { module = "com.google.android.material:material", version.ref = "material" }
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraint" }

@@ -13,6 +13,9 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 class MealRepoImplTest {
@@ -34,7 +37,7 @@ class MealRepoImplTest {
     }
 
     @Test
-    fun `when getMealList invoked and dao return empty list and call api service `() {
+    fun `when getMealList invoked if service return list then save it local and return list`() {
         val mealResponse = MealResponse(
             id = "id",
             name = "name",
@@ -49,7 +52,6 @@ class MealRepoImplTest {
         )
         val mealList = listOf(meal)
 
-        whenever(mealDao.getMealList("categoryId")).thenReturn(Single.just(emptyList()))
         whenever(mealDBService.getMealByCategory("name")).thenReturn(Single.just(response))
         whenever(mapper.map(mealResponse)).thenReturn(meal)
         whenever(mealDao.insertOrUpdate(mealList)).thenReturn(Completable.complete())
@@ -66,10 +68,12 @@ class MealRepoImplTest {
             .assertNoErrors()
             .assertComplete()
             .dispose()
+
+        verify(mealDao, never()).getMealList("categoryId")
     }
 
     @Test
-    fun `when getMealList invoked and dao return list and should not api service`() {
+    fun `when getMealList invoked and service throws error check the local database for result`() {
         val meal = Meal(
             id = "id",
             name = "name",
@@ -77,6 +81,7 @@ class MealRepoImplTest {
             categoryId = "categoryId"
         )
         val mealList = listOf(meal)
+        whenever(mealDBService.getMealByCategory("name")).thenReturn(Single.error(Exception("Error")))
         whenever(mealDao.getMealList("categoryId")).thenReturn(Single.just(mealList))
 
         val category = Category(
@@ -91,5 +96,7 @@ class MealRepoImplTest {
             .assertNoErrors()
             .assertComplete()
             .dispose()
+
+        verify(mapper, never()).map(any())
     }
 }

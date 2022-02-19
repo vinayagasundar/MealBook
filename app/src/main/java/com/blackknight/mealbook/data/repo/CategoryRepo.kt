@@ -18,14 +18,8 @@ class CategoryRepoImpl @Inject constructor(
     private val mapper: Mapper<CategoryResponse, Category>
 ) : CategoryRepo {
     override fun getCategories(): Single<List<Category>> {
-        return categoryDao.getCategories()
-            .flatMap { categories ->
-                if (categories.isEmpty()) {
-                    getAndSaveCategories()
-                } else {
-                    Single.just(categories)
-                }
-            }
+        return getAndSaveCategories()
+            .onErrorResumeNext { categoryDao.getCategories() }
     }
 
     private fun getAndSaveCategories(): Single<List<Category>> {

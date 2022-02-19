@@ -20,13 +20,9 @@ class MealRepoImpl @Inject constructor(
     private val mapper: Mapper<MealResponse, Meal>
 ) : MealRepo {
     override fun getMealList(category: Category): Single<List<Meal>> {
-        return mealDao.getMealList(category.id)
-            .flatMap { meals ->
-                if (meals.isEmpty()) {
-                    getAndSaveMeals(category)
-                } else {
-                    Single.just(meals)
-                }
+        return getAndSaveMeals(category)
+            .onErrorResumeNext {
+                mealDao.getMealList(category.id)
             }
 
     }

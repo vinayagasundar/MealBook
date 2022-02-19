@@ -18,16 +18,20 @@ class RecipeRepoImpl @Inject constructor(
     private val mapper: Mapper<RecipeResponse, Recipe>
 ) : RecipeRepo {
     override fun getRecipe(recipeId: String): Single<Recipe> {
-        return recipeDao.getRecipe(recipeId)
+        return getAndSaveRecipe(recipeId)
             .onErrorResumeNext {
-                mealDBService.getRecipe(recipeId)
-                    .map { response ->
-                        response.list.firstOrNull()?.let { mapper.map(it) } ?: Recipe.EMPTY
-                    }
-                    .flatMap { recipe ->
-                        recipeDao.insertOrUpdate(listOf(recipe))
-                            .andThen(Single.just(recipe))
-                    }
+                recipeDao.getRecipe(recipeId)
+            }
+    }
+
+    private fun getAndSaveRecipe(recipeId: String): Single<Recipe> {
+        return mealDBService.getRecipe(recipeId)
+            .map { response ->
+                response.list.firstOrNull()?.let { mapper.map(it) } ?: Recipe.EMPTY
+            }
+            .flatMap { recipe ->
+                recipeDao.insertOrUpdate(listOf(recipe))
+                    .andThen(Single.just(recipe))
             }
     }
 }

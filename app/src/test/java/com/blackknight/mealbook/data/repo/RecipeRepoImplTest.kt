@@ -4,14 +4,17 @@ import com.blackknight.mealbook.data.daos.RecipeDao
 import com.blackknight.mealbook.data.entities.Recipe
 import com.blackknight.mealbook.data.mapper.Mapper
 import com.blackknight.mealbook.network.MealDBService
-import com.blackknight.mealbook.network.response.RecipeResponse
 import com.blackknight.mealbook.network.response.RecipeListResponse
+import com.blackknight.mealbook.network.response.RecipeResponse
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 class RecipeRepoImplTest {
@@ -34,7 +37,7 @@ class RecipeRepoImplTest {
     }
 
     @Test
-    fun `when getRecipe invoked and dao return exception and call api service `() {
+    fun `when getRecipe invoked if service return list then save it local and return recipe`() {
         val mealResponse = RecipeResponse(
             id = "id",
             name = "name",
@@ -53,7 +56,6 @@ class RecipeRepoImplTest {
         )
         val recipeList = listOf(recipe)
 
-        whenever(recipeDao.getRecipe("recipeId")).thenReturn(Single.error(Exception("No Data Found")))
         whenever(mealDBService.getRecipe("recipeId")).thenReturn(Single.just(response))
         whenever(mapper.map(mealResponse)).thenReturn(recipe)
         whenever(recipeDao.insertOrUpdate(recipeList)).thenReturn(Completable.complete())
@@ -64,10 +66,12 @@ class RecipeRepoImplTest {
             .assertNoErrors()
             .assertComplete()
             .dispose()
+
+        verify(recipeDao, never()).getRecipe("recipeId")
     }
 
     @Test
-    fun `when getRecipe invoked and dao return Recipe and should not api service`() {
+    fun `when getRecipe invoked and service throws error check the local database for result`() {
         val recipe = Recipe(
             id = "id",
             name = "name",
@@ -78,6 +82,7 @@ class RecipeRepoImplTest {
             youtube = ""
         )
 
+        whenever(mealDBService.getRecipe("recipeId")).thenReturn(Single.error(Exception("Error")))
         whenever(recipeDao.getRecipe("recipeId")).thenReturn(Single.just(recipe))
 
         recipeRepo.getRecipe("recipeId")
@@ -86,5 +91,7 @@ class RecipeRepoImplTest {
             .assertNoErrors()
             .assertComplete()
             .dispose()
+
+        verify(mapper, never()).map(any())
     }
 }
