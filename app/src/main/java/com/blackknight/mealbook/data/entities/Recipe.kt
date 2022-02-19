@@ -13,4 +13,8 @@ data class Recipe(
     val thumbnail: String,
     val youtube: String,
     val ingredient: List<Ingredient>
-)
+) {
+    companion object {
+        val EMPTY = Recipe("", "", "", "", "", "", emptyList())
+    }
+}

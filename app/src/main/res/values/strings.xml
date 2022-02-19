@@ -3,4 +3,7 @@
 
     <string name="landing_category_title">Category</string>
     <string name="landing_recipe_title">Recipes</string>
+
+    <string name="recipe_ingredient_title">Ingredient</string>
+    <string name="recipe_ingredient_instruction">Instruction</string>
 </resources>

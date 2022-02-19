@@ -29,16 +29,26 @@ private val DIFF = object : DiffUtil.ItemCallback<Meal>() {
 
 class MealAdapter @Inject constructor() : ListAdapter<Meal, MealAdapter.MealViewHolder>(DIFF) {
 
+    private var handler: MealOnClickHandler? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MealViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_meal, parent, false)
-        return MealViewHolder(view)
+        return MealViewHolder(view, handler)
     }
 
     override fun onBindViewHolder(holder: MealViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    class MealViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
+    fun setOnClickHandler(clickHandler: MealOnClickHandler) {
+        handler = clickHandler
+    }
+
+    class MealViewHolder(
+        private val view: View,
+        private val handler: MealOnClickHandler?
+    ) : RecyclerView.ViewHolder(view) {
+
         private val name by lazy(LazyThreadSafetyMode.NONE) {
             view.findViewById<TextView>(R.id.tv_meal_name)
         }
@@ -62,6 +72,11 @@ class MealAdapter @Inject constructor() : ListAdapter<Meal, MealAdapter.MealView
                 .target(image)
                 .build()
             disposable = imageLoader.enqueue(request)
+            view.setOnClickListener { handler?.onClick(meal) }
         }
+    }
+
+    fun interface MealOnClickHandler {
+        fun onClick(meal: Meal)
     }
 }

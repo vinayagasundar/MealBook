@@ -17,4 +17,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun mealRepo(mealRepoImpl: MealRepoImpl): MealRepo
+
+    @Binds
+    @Singleton
+    abstract fun recipeRepo(recipeRepoImpl: RecipeRepoImpl): RecipeRepo
 }

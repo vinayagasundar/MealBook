@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blackknight.mealbook.R
 import com.blackknight.mealbook.ui.landing.adapter.CategoryAdapter
 import com.blackknight.mealbook.ui.landing.adapter.MealAdapter
+import com.blackknight.mealbook.ui.recipe.RecipeDetailActivity
 import com.blackknight.mealbook.util.defaultErrorHandler
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -50,8 +51,12 @@ class LandingActivity : AppCompatActivity() {
             adapter = mealAdapter
         }
 
-        categoryAdapter.setOnClickHandler {
-            viewModel.onClickCategoryItem(it)
+        categoryAdapter.setOnClickHandler { categoryItem ->
+            viewModel.onClickCategoryItem(categoryItem)
+        }
+
+        mealAdapter.setOnClickHandler { meal ->
+            startActivity(RecipeDetailActivity.getIntent(this, meal))
         }
 
         disposable.add(
