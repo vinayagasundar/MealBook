@@ -69,4 +69,19 @@ class LandingViewModelTest {
             .assertNotComplete()
             .dispose()
     }
+
+    @Test
+    fun `when observeViewState invoke and repo return error should set isError in the state`() {
+        whenever(categoryRepo.getCategories()).thenReturn(Single.error(Exception("Error")))
+        val observer = viewModel.observeViewState()
+            .test()
+
+        observer.assertValues(
+            LandingViewState(LoadingState.FullLoading),
+            LandingViewState(LoadingState.Hide, isError = true),
+        )
+            .assertNoErrors()
+            .assertComplete()
+            .dispose()
+    }
 }
