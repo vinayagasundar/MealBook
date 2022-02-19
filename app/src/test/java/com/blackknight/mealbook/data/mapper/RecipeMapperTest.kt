@@ -2,7 +2,7 @@ package com.blackknight.mealbook.data.mapper
 
 import com.blackknight.mealbook.data.entities.Ingredient
 import com.blackknight.mealbook.data.entities.Recipe
-import com.blackknight.mealbook.network.response.MealRecipeResponse
+import com.blackknight.mealbook.network.response.RecipeResponse
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -18,7 +18,7 @@ class RecipeMapperTest {
 
     @Test
     fun map() {
-        val response = MealRecipeResponse(
+        val response = RecipeResponse(
             id = "id",
             name = "name",
             categories = "category",
@@ -68,7 +68,7 @@ class RecipeMapperTest {
             Ingredient("name2", "measure2"),
             Ingredient("name3", "measure3")
         )
-        val response = MealRecipeResponse(
+        val response = RecipeResponse(
             id = "id",
             name = "name",
             categories = "category",
@@ -86,7 +86,7 @@ class RecipeMapperTest {
 
     @Test
     fun `when invoke toIngredients with invalid ingredient return empty list`() {
-        val response = MealRecipeResponse(
+        val response = RecipeResponse(
             id = "id",
             name = "name",
             categories = "category",

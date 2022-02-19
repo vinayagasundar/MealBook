@@ -40,7 +40,7 @@ class MealRepoImplTest {
             name = "name",
             thumbnail = "thumbnail"
         )
-        val response = MealListResponse(meals = listOf(mealResponse))
+        val response = MealListResponse(list = listOf(mealResponse))
         val meal = Meal(
             id = "id",
             name = "name",
@@ -50,7 +50,7 @@ class MealRepoImplTest {
         val mealList = listOf(meal)
 
         whenever(mealDao.getMealList("categoryId")).thenReturn(Single.just(emptyList()))
-        whenever(mealDBService.getFoodListByCategory("name")).thenReturn(Single.just(response))
+        whenever(mealDBService.getMealByCategory("name")).thenReturn(Single.just(response))
         whenever(mapper.map(mealResponse)).thenReturn(meal)
         whenever(mealDao.insertOrUpdate(mealList)).thenReturn(Completable.complete())
 

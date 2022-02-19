@@ -4,7 +4,7 @@ import com.blackknight.mealbook.data.daos.CategoryDao
 import com.blackknight.mealbook.data.entities.Category
 import com.blackknight.mealbook.data.mapper.Mapper
 import com.blackknight.mealbook.network.MealDBService
-import com.blackknight.mealbook.network.response.CategoriesResponse
+import com.blackknight.mealbook.network.response.CategoryListResponse
 import com.blackknight.mealbook.network.response.CategoryResponse
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -43,7 +43,7 @@ class CategoryRepoImplTest {
             thumbnail = "thumbnail",
             description = "description"
         )
-        val response = CategoriesResponse(list = listOf(categoryResponse))
+        val response = CategoryListResponse(list = listOf(categoryResponse))
         val category = Category(
             id = "id",
             name = "name",

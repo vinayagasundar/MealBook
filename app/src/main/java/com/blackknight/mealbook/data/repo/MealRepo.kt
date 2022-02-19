@@ -32,9 +32,9 @@ class MealRepoImpl @Inject constructor(
     }
 
     private fun getAndSaveMeals(category: Category): Single<List<Meal>> {
-        return mealDBService.getFoodListByCategory(category.name)
+        return mealDBService.getMealByCategory(category.name)
             .map { response ->
-                response.meals.map {
+                response.list.map {
                     mapper.map(it).copy(categoryId = category.id)
                 }
             }

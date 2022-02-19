@@ -4,8 +4,8 @@ import com.blackknight.mealbook.data.daos.RecipeDao
 import com.blackknight.mealbook.data.entities.Recipe
 import com.blackknight.mealbook.data.mapper.Mapper
 import com.blackknight.mealbook.network.MealDBService
-import com.blackknight.mealbook.network.response.MealRecipeResponse
-import com.blackknight.mealbook.network.response.MealsResponse
+import com.blackknight.mealbook.network.response.RecipeResponse
+import com.blackknight.mealbook.network.response.RecipeListResponse
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
@@ -23,7 +23,7 @@ class RecipeRepoImplTest {
     private lateinit var mealDBService: MealDBService
 
     @Mock
-    private lateinit var mapper: Mapper<MealRecipeResponse, Recipe>
+    private lateinit var mapper: Mapper<RecipeResponse, Recipe>
 
     private lateinit var recipeRepo: RecipeRepoImpl
 
@@ -35,13 +35,13 @@ class RecipeRepoImplTest {
 
     @Test
     fun `when getRecipe invoked and dao return exception and call api service `() {
-        val mealResponse = MealRecipeResponse(
+        val mealResponse = RecipeResponse(
             id = "id",
             name = "name",
             thumbnail = "thumbnail",
             categories = "category"
         )
-        val response = MealsResponse(listOf(mealResponse))
+        val response = RecipeListResponse(listOf(mealResponse))
         val recipe = Recipe(
             id = "id",
             name = "name",
@@ -54,7 +54,7 @@ class RecipeRepoImplTest {
         val recipeList = listOf(recipe)
 
         whenever(recipeDao.getRecipe("recipeId")).thenReturn(Single.error(Exception("No Data Found")))
-        whenever(mealDBService.getMeal("recipeId")).thenReturn(Single.just(response))
+        whenever(mealDBService.getRecipe("recipeId")).thenReturn(Single.just(response))
         whenever(mapper.map(mealResponse)).thenReturn(recipe)
         whenever(recipeDao.insertOrUpdate(recipeList)).thenReturn(Completable.complete())
 

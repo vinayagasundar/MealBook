@@ -4,7 +4,7 @@ import com.blackknight.mealbook.data.entities.Category
 import com.blackknight.mealbook.data.entities.Meal
 import com.blackknight.mealbook.data.entities.Recipe
 import com.blackknight.mealbook.network.response.CategoryResponse
-import com.blackknight.mealbook.network.response.MealRecipeResponse
+import com.blackknight.mealbook.network.response.RecipeResponse
 import com.blackknight.mealbook.network.response.MealResponse
 import dagger.Binds
 import dagger.Module
@@ -21,5 +21,5 @@ abstract class MapperModule {
     abstract fun mealMapper(mealMapper: MealMapper): Mapper<MealResponse, Meal>
 
     @Binds
-    abstract fun recipeMapper(recipeMapper: RecipeMapper): Mapper<MealRecipeResponse, Recipe>
+    abstract fun recipeMapper(recipeMapper: RecipeMapper): Mapper<RecipeResponse, Recipe>
 }

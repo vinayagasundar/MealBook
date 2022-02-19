@@ -2,12 +2,12 @@ package com.blackknight.mealbook.data.mapper
 
 import com.blackknight.mealbook.data.entities.Ingredient
 import com.blackknight.mealbook.data.entities.Recipe
-import com.blackknight.mealbook.network.response.MealRecipeResponse
+import com.blackknight.mealbook.network.response.RecipeResponse
 import javax.inject.Inject
 
-class RecipeMapper @Inject constructor() : Mapper<MealRecipeResponse, Recipe> {
+class RecipeMapper @Inject constructor() : Mapper<RecipeResponse, Recipe> {
 
-    override fun map(from: MealRecipeResponse): Recipe {
+    override fun map(from: RecipeResponse): Recipe {
         return Recipe(
             id = from.id,
             name = from.name,
@@ -19,7 +19,7 @@ class RecipeMapper @Inject constructor() : Mapper<MealRecipeResponse, Recipe> {
         )
     }
 
-    fun toIngredients(from: MealRecipeResponse): List<Ingredient> {
+    fun toIngredients(from: RecipeResponse): List<Ingredient> {
         val list = mutableListOf<Ingredient>()
         getIngredient(from.strIngredient1, from.strMeasure1)?.let { list.add(it) }
         getIngredient(from.strIngredient2, from.strMeasure2)?.let { list.add(it) }
