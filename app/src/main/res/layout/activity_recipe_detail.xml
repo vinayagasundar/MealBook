@@ -27,49 +27,65 @@
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/space_normal">
+            android:layout_height="wrap_content">
 
-            <TextView
+            <include
+                android:id="@+id/loading_recipe_details"
+                layout="@layout/layout_loading_recipe_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_small"
-                android:layout_marginBottom="@dimen/space_small"
-                android:text="@string/recipe_ingredient_title"
-                android:textColor="?attr/colorPrimary" />
+                android:visibility="visible" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_ingredient"
+            <LinearLayout
+                android:id="@+id/ll_recipe_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:padding="@dimen/space_normal"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:visibility="gone">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_small"
-                android:layout_marginBottom="@dimen/space_small"
-                android:text="@string/recipe_ingredient_instruction"
-                android:textColor="?attr/colorPrimary" />
 
-            <TextView
-                android:id="@+id/tv_instruction"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/space_normal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rv_ingredient"
-                tools:text="@tools:sample/lorem/random" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_small"
+                    android:layout_marginBottom="@dimen/space_small"
+                    android:text="@string/recipe_ingredient_title"
+                    android:textColor="?attr/colorPrimary" />
 
-        </LinearLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_ingredient"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/space_normal"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_small"
+                    android:layout_marginBottom="@dimen/space_small"
+                    android:text="@string/recipe_ingredient_instruction"
+                    android:textColor="?attr/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/tv_instruction"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/space_normal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/rv_ingredient"
+                    tools:text="@tools:sample/lorem/random" />
+
+            </LinearLayout>
+        </FrameLayout>
 
     </androidx.core.widget.NestedScrollView>
 

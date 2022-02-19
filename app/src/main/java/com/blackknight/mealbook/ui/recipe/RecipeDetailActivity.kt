@@ -3,6 +3,7 @@ package com.blackknight.mealbook.ui.recipe
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -37,6 +38,14 @@ class RecipeDetailActivity : AppCompatActivity() {
         findViewById<RecyclerView>(R.id.rv_ingredient)
     }
 
+    private val recipeContainer by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<View>(R.id.ll_recipe_details)
+    }
+
+    private val loadingRecipeDetail by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<View>(R.id.loading_recipe_details)
+    }
+
     private val disposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,17 +56,22 @@ class RecipeDetailActivity : AppCompatActivity() {
         val title = intent.getStringExtra(KEY_MEAL_TITLE).orEmpty()
         materialToolbar.title = title
 
+        materialToolbar.setNavigationOnClickListener {
+            finish()
+        }
+
         rvIngredient.apply {
             itemAnimator = null
             adapter = ingredientAdapter
             (layoutManager as? GridLayoutManager)?.spanCount = 3
         }
 
-
         disposable.add(
             viewModel.getRecipe(id)
                 .subscribeBy { recipe ->
                     recipe.apply {
+                        recipeContainer.visibility = View.VISIBLE
+                        loadingRecipeDetail.visibility = View.GONE
                         materialToolbar.title = name
                         tvInstruction.text = instruction
                         ingredientAdapter.submitList(ingredient)
