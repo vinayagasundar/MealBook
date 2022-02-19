@@ -9,8 +9,8 @@ import com.blackknight.mealbook.ui.landing.adapter.CategoryItem
 import com.blackknight.mealbook.util.Optional
 import com.blackknight.mealbook.util.SchedulerProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.PublishSubject
 import javax.inject.Inject
 
@@ -41,19 +41,22 @@ internal class LandingViewModel @Inject constructor(
 
     fun observeViewState(): Observable<LandingViewState> {
         return observeCategories().observeOn(schedulerProvider.io())
-            .switchMap { categories ->
-                val selectedCategory = categories.firstOrNull { it.isSelected }?.category
-                if (selectedCategory != null) {
-                    mealRepo.getMealList(selectedCategory)
-                        .map {
-                            LandingViewState(LoadingState.Hide, categories, it)
-                        }.toObservable()
-                } else {
-                    Observable.just(LandingViewState(LoadingState.RecipeOnlyLoading, categories))
-                }.startWithItem(LandingViewState(LoadingState.RecipeOnlyLoading, categories))
-            }.startWithItem(LandingViewState(LoadingState.FullLoading))
+            .switchMap { categories -> observableMealList(categories) }
+            .startWithItem(LandingViewState(LoadingState.FullLoading))
             .subscribeOn(schedulerProvider.io())
             .observeOn(schedulerProvider.main())
+    }
+
+    private fun observableMealList(categories: List<CategoryItem>): @NonNull Observable<LandingViewState> {
+        val selectedCategory = categories.firstOrNull { it.isSelected }?.category
+        return if (selectedCategory != null) {
+            mealRepo.getMealList(selectedCategory)
+                .map {
+                    LandingViewState(LoadingState.Hide, categories, it)
+                }.toObservable()
+        } else {
+            Observable.just(LandingViewState(LoadingState.RecipeOnlyLoading, categories))
+        }.startWithItem(LandingViewState(LoadingState.RecipeOnlyLoading, categories))
     }
 
     private fun observeCategories(): Observable<List<CategoryItem>> {

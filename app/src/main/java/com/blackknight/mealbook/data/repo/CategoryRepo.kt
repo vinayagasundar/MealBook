@@ -9,7 +9,7 @@ import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 
 interface CategoryRepo {
-    fun getCategories(fromNetwork: Boolean = false): Single<List<Category>>
+    fun getCategories(): Single<List<Category>>
 }
 
 class CategoryRepoImpl @Inject constructor(
@@ -17,19 +17,15 @@ class CategoryRepoImpl @Inject constructor(
     private val mealDBService: MealDBService,
     private val mapper: Mapper<CategoryResponse, Category>
 ) : CategoryRepo {
-    override fun getCategories(fromNetwork: Boolean): Single<List<Category>> {
-        return if (fromNetwork) {
-            getAndSaveCategories()
-        } else {
-            categoryDao.getCategories()
-                .flatMap { categories ->
-                    if (categories.isEmpty()) {
-                        getAndSaveCategories()
-                    } else {
-                        Single.just(categories)
-                    }
+    override fun getCategories(): Single<List<Category>> {
+        return categoryDao.getCategories()
+            .flatMap { categories ->
+                if (categories.isEmpty()) {
+                    getAndSaveCategories()
+                } else {
+                    Single.just(categories)
                 }
-        }
+            }
     }
 
     private fun getAndSaveCategories(): Single<List<Category>> {

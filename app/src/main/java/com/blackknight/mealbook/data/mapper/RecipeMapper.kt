@@ -19,7 +19,7 @@ class RecipeMapper @Inject constructor() : Mapper<MealRecipeResponse, Recipe> {
         )
     }
 
-    private fun toIngredients(from: MealRecipeResponse): List<Ingredient> {
+    fun toIngredients(from: MealRecipeResponse): List<Ingredient> {
         val list = mutableListOf<Ingredient>()
         getIngredient(from.strIngredient1, from.strMeasure1)?.let { list.add(it) }
         getIngredient(from.strIngredient2, from.strMeasure2)?.let { list.add(it) }
@@ -44,10 +44,8 @@ class RecipeMapper @Inject constructor() : Mapper<MealRecipeResponse, Recipe> {
         return list
     }
 
-    private fun getIngredient(ingredient: String?, measure: String?): Ingredient? {
+    fun getIngredient(ingredient: String?, measure: String?): Ingredient? {
         if (ingredient.isNullOrBlank() || measure.isNullOrEmpty()) return null
         return Ingredient(ingredient, measure)
     }
-
-
 }

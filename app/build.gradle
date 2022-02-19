@@ -50,4 +50,6 @@ dependencies {
 
     kapt(libs.room.compiler)
     kapt(libs.dagger.hilt.compiler)
+
+    testImplementation(libs.junit)
 }
