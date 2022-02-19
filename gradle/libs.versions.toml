@@ -15,6 +15,7 @@ coil = "1.4.0"
 viewmodel = "2.4.0"
 shimmer = "0.5.0"
 junit = "4.13.2"
+mockito = "4.0.0"
 
 [libraries]
 core = { module = "androidx.core:core-ktx", version.ref = "core" }
@@ -50,9 +51,11 @@ coil = { module = "io.coil-kt:coil", version.ref = "coil" }
 facebook-shimmer = { module = "com.facebook.shimmer:shimmer", version.ref = "shimmer" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito" }
 
 [bundles]
 retrofit = ["retrofit-core", "retrofit-gson", "retrofit-rxjava3"]
 okhttp = ["okhttp-core", "okhttp-logging-interceptor"]
 room = ["room-core", "room-rxjava"]
 rxjava = ["rxjava", "rxjava-android", "rxjava-kotlin"]
+unittest = ["junit", "mockito-kotlin"]
