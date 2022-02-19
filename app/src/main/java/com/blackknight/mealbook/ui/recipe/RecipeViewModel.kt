@@ -14,8 +14,10 @@ internal class RecipeViewModel @Inject constructor(
     private val schedulerProvider: SchedulerProvider
 ) : ViewModel() {
 
-    fun getRecipe(recipeId: String): Single<Recipe> {
+    fun getRecipe(recipeId: String): Single<Result<Recipe>> {
         return recipeRepo.getRecipe(recipeId)
+            .map { recipe -> Result.success(recipe) }
+            .onErrorReturn { ex -> Result.failure(ex) }
             .subscribeOn(schedulerProvider.io())
             .observeOn(schedulerProvider.main())
     }

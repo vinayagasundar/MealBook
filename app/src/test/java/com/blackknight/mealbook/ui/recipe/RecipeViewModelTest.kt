@@ -39,9 +39,22 @@ class RecipeViewModelTest {
         )
         whenever(recipeRepo.getRecipe("recipeId")).thenReturn(Single.just(recipe))
 
-        recipeRepo.getRecipe("recipeId")
+        viewModel.getRecipe("recipeId")
             .test()
-            .assertValue(recipe)
+            .assertValue(Result.success(recipe))
+            .assertNoErrors()
+            .assertComplete()
+            .dispose()
+    }
+
+    @Test
+    fun getRecipe_failure() {
+        val exception = Exception("Error")
+        whenever(recipeRepo.getRecipe("recipeId")).thenReturn(Single.error(exception))
+
+        viewModel.getRecipe("recipeId")
+            .test()
+            .assertValue(Result.failure(exception))
             .assertNoErrors()
             .assertComplete()
             .dispose()

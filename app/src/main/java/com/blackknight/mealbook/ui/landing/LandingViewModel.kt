@@ -23,8 +23,15 @@ sealed class LoadingState {
 data class LandingViewState(
     val loadingState: LoadingState,
     val categories: List<CategoryItem> = emptyList(),
-    val meals: List<Meal> = emptyList()
-)
+    val meals: List<Meal> = emptyList(),
+    val isError: Boolean = false
+) {
+
+    fun isErrorState(): Boolean {
+        return isError || (loadingState == LoadingState.Hide
+                && (categories.isEmpty() || meals.isEmpty()))
+    }
+}
 
 @HiltViewModel
 internal class LandingViewModel @Inject constructor(
@@ -43,6 +50,7 @@ internal class LandingViewModel @Inject constructor(
         return observeCategories().observeOn(schedulerProvider.io())
             .switchMap { categories -> observableMealList(categories) }
             .startWithItem(LandingViewState(LoadingState.FullLoading))
+            .onErrorReturnItem(LandingViewState(LoadingState.Hide, isError = true))
             .subscribeOn(schedulerProvider.io())
             .observeOn(schedulerProvider.main())
     }
@@ -51,9 +59,8 @@ internal class LandingViewModel @Inject constructor(
         val selectedCategory = categories.firstOrNull { it.isSelected }?.category
         return if (selectedCategory != null) {
             mealRepo.getMealList(selectedCategory)
-                .map {
-                    LandingViewState(LoadingState.Hide, categories, it)
-                }.toObservable()
+                .map { LandingViewState(LoadingState.Hide, categories, it) }
+                .toObservable()
         } else {
             Observable.just(LandingViewState(LoadingState.RecipeOnlyLoading, categories))
         }.startWithItem(LandingViewState(LoadingState.RecipeOnlyLoading, categories))

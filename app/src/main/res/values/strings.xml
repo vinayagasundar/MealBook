@@ -6,4 +6,8 @@
 
     <string name="recipe_ingredient_title">Ingredient</string>
     <string name="recipe_ingredient_instruction">Instruction</string>
+
+    <string name="no_data_title">Oh no!</string>
+    <string name="no_data_description">No information available in the local.\n Please try with network</string>
+    <string name="no_data_okay">Okay</string>
 </resources>

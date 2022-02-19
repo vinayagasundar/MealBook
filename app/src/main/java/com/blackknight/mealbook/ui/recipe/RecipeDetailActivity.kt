@@ -46,6 +46,10 @@ class RecipeDetailActivity : AppCompatActivity() {
         findViewById<View>(R.id.loading_recipe_details)
     }
 
+    private val errorLayout by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<View>(R.id.error_layout)
+    }
+
     private val disposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,13 +72,20 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         disposable.add(
             viewModel.getRecipe(id)
-                .subscribeBy { recipe ->
-                    recipe.apply {
-                        recipeContainer.visibility = View.VISIBLE
-                        loadingRecipeDetail.visibility = View.GONE
-                        materialToolbar.title = name
-                        tvInstruction.text = instruction
-                        ingredientAdapter.submitList(ingredient)
+                .subscribeBy { state ->
+                    when {
+                        state.isSuccess -> state.getOrNull()?.apply {
+                            recipeContainer.visibility = View.VISIBLE
+                            loadingRecipeDetail.visibility = View.GONE
+                            materialToolbar.title = name
+                            tvInstruction.text = instruction
+                            ingredientAdapter.submitList(ingredient)
+                        }
+                        state.isFailure -> {
+                            recipeContainer.visibility = View.GONE
+                            loadingRecipeDetail.visibility = View.GONE
+                            errorLayout.visibility = View.VISIBLE
+                        }
                     }
                 }
         )

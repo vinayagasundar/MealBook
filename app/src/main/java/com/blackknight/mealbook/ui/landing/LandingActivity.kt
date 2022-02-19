@@ -11,6 +11,7 @@ import com.blackknight.mealbook.ui.landing.adapter.CategoryAdapter
 import com.blackknight.mealbook.ui.landing.adapter.MealAdapter
 import com.blackknight.mealbook.ui.recipe.RecipeDetailActivity
 import com.blackknight.mealbook.util.defaultErrorHandler
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -91,6 +92,17 @@ class LandingActivity : AppCompatActivity() {
 
                     if (state.meals.isNotEmpty()) {
                         mealAdapter.submitList(state.meals)
+                    }
+
+                    if (state.isErrorState()) {
+                        val dialog = BottomSheetDialog(this).apply {
+                            setCancelable(false)
+                            setContentView(R.layout.dialog_no_data)
+                            findViewById<View>(R.id.btn_okay)?.setOnClickListener {
+                                dismiss()
+                            }
+                        }
+                        dialog.show()
                     }
                 }
         )

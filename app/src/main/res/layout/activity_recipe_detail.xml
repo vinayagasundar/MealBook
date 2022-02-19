@@ -39,6 +39,15 @@
                 android:layout_marginTop="@dimen/space_small"
                 android:visibility="visible" />
 
+            <include
+                android:id="@+id/error_layout"
+                layout="@layout/layout_no_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
             <LinearLayout
                 android:id="@+id/ll_recipe_details"
                 android:layout_width="match_parent"
