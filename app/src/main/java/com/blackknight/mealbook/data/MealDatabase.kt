@@ -8,4 +8,9 @@ interface MealDatabase {
     fun getCategoryDao(): CategoryDao
     fun getMealDao(): MealDao
     fun getRecipe(): RecipeDao
+
+    companion object {
+        const val NAME = "mealbook.db"
+        const val VERSION = 1
+    }
 }

@@ -20,7 +20,7 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideMealDatabase(@ApplicationContext context: Context): MealDatabase =
-        Room.databaseBuilder(context, RoomMealDatabase::class.java, RoomMealDatabase.NAME)
+        Room.databaseBuilder(context, RoomMealDatabase::class.java, MealDatabase.NAME)
             .build()
 
     @Provides
