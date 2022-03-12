@@ -7,6 +7,9 @@ import android.view.View
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blackknight.mealbook.R
@@ -14,8 +17,7 @@ import com.blackknight.mealbook.data.entities.Meal
 import com.blackknight.mealbook.ui.recipe.adapter.IngredientAdapter
 import com.google.android.material.appbar.MaterialToolbar
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -50,8 +52,6 @@ class RecipeDetailActivity : AppCompatActivity() {
         findViewById<View>(R.id.error_layout)
     }
 
-    private val disposable = CompositeDisposable()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recipe_detail)
@@ -70,30 +70,25 @@ class RecipeDetailActivity : AppCompatActivity() {
             (layoutManager as? GridLayoutManager)?.spanCount = 3
         }
 
-        disposable.add(
-            viewModel.getRecipe(id)
-                .subscribeBy { state ->
-                    when {
-                        state.isSuccess -> state.getOrNull()?.apply {
-                            recipeContainer.visibility = View.VISIBLE
-                            loadingRecipeDetail.visibility = View.GONE
-                            materialToolbar.title = name
-                            tvInstruction.text = instruction
-                            ingredientAdapter.submitList(ingredient)
-                        }
-                        state.isFailure -> {
-                            recipeContainer.visibility = View.GONE
-                            loadingRecipeDetail.visibility = View.GONE
-                            errorLayout.visibility = View.VISIBLE
-                        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+                val state = viewModel.getRecipe(id)
+                when {
+                    state.isSuccess -> state.getOrNull()?.apply {
+                        recipeContainer.visibility = View.VISIBLE
+                        loadingRecipeDetail.visibility = View.GONE
+                        materialToolbar.title = name
+                        tvInstruction.text = instruction
+                        ingredientAdapter.submitList(ingredient)
+                    }
+                    state.isFailure -> {
+                        recipeContainer.visibility = View.GONE
+                        loadingRecipeDetail.visibility = View.GONE
+                        errorLayout.visibility = View.VISIBLE
                     }
                 }
-        )
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        disposable.dispose()
+            }
+        }
     }
 
     companion object {

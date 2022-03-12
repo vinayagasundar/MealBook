@@ -1,17 +1,26 @@
 package com.blackknight.mealbook.ui.landing
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.blackknight.mealbook.data.entities.Category
 import com.blackknight.mealbook.data.entities.Meal
 import com.blackknight.mealbook.data.repo.CategoryRepo
 import com.blackknight.mealbook.data.repo.MealRepo
 import com.blackknight.mealbook.ui.landing.adapter.CategoryItem
 import com.blackknight.mealbook.util.Optional
-import com.blackknight.mealbook.util.SchedulerProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.rxjava3.annotations.NonNull
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.subjects.PublishSubject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class LoadingState {
@@ -36,43 +45,45 @@ data class LandingViewState(
 @HiltViewModel
 internal class LandingViewModel @Inject constructor(
     private val categoryRepo: CategoryRepo,
-    private val mealRepo: MealRepo,
-    private val schedulerProvider: SchedulerProvider
+    private val mealRepo: MealRepo
 ) : ViewModel() {
 
-    private val publishSelectCategory = PublishSubject.create<Optional<Category>>()
+    private val publishSelectCategory = Channel<Optional<Category>>()
 
     fun onClickCategoryItem(item: CategoryItem) {
-        publishSelectCategory.onNext(Optional.Present(item.category))
+        publishSelectCategory.trySend(Optional.Present(item.category))
     }
 
-    fun observeViewState(): Observable<LandingViewState> {
-        return observeCategories().observeOn(schedulerProvider.io())
-            .switchMap { categories -> observableMealList(categories) }
-            .startWithItem(LandingViewState(LoadingState.FullLoading))
-            .onErrorReturnItem(LandingViewState(LoadingState.Hide, isError = true))
-            .subscribeOn(schedulerProvider.io())
-            .observeOn(schedulerProvider.main())
-    }
+    @ExperimentalCoroutinesApi
+    fun observeViewState(): Flow<LandingViewState> {
+        return flow {
+            val categories = categoryRepo.getCategories()
+            publishSelectCategory.receiveAsFlow()
+                .onStart { emit(Optional.Absent) }
+                .flatMapLatest { selectedCategoryOpt ->
+                    flow {
+                        val selectedCategory =
+                            (selectedCategoryOpt.getOrNull() ?: categories.firstOrNull())
+                        val categoriesItem = categories.map { category ->
+                            CategoryItem(
+                                category,
+                                category.id == selectedCategory?.id
+                            )
+                        }
 
-    private fun observableMealList(categories: List<CategoryItem>): @NonNull Observable<LandingViewState> {
-        val selectedCategory = categories.firstOrNull { it.isSelected }?.category
-        return if (selectedCategory != null) {
-            mealRepo.getMealList(selectedCategory)
-                .map { LandingViewState(LoadingState.Hide, categories, it) }
-                .toObservable()
-        } else {
-            Observable.just(LandingViewState(LoadingState.RecipeOnlyLoading, categories))
-        }.startWithItem(LandingViewState(LoadingState.RecipeOnlyLoading, categories))
-    }
+                        emit(LandingViewState(LoadingState.RecipeOnlyLoading, categoriesItem))
 
-    private fun observeCategories(): Observable<List<CategoryItem>> {
-        return Observable.combineLatest(
-            categoryRepo.getCategories().toObservable(),
-            publishSelectCategory.startWithItem(Optional.Absent)
-        ) { categories, selectedCategory ->
-            val categoryId = (selectedCategory.getOrNull() ?: categories.getOrNull(0))?.id
-            categories.map { category -> CategoryItem(category, categoryId == category.id) }
-        }
+                        selectedCategory?.let { category ->
+                            mealRepo.getMealList(category)
+                        }?.also { meals ->
+                            emit(LandingViewState(LoadingState.Hide, categoriesItem, meals, false))
+                        }
+                    }
+                }.collect {
+                    emit(it)
+                }
+        }.onStart { emit(LandingViewState(LoadingState.FullLoading)) }
+            .catch { emit(LandingViewState(LoadingState.Hide, isError = true)) }
+            .flowOn(Dispatchers.Main)
     }
 }

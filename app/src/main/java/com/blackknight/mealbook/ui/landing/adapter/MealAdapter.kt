@@ -14,7 +14,7 @@ import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.blackknight.mealbook.R
 import com.blackknight.mealbook.data.entities.Meal
-import com.blackknight.mealbook.util.defaultErrorHandler
+import com.blackknight.mealbook.util.defaultErrorLogger
 import javax.inject.Inject
 
 private val DIFF = object : DiffUtil.ItemCallback<Meal>() {
@@ -67,7 +67,7 @@ class MealAdapter @Inject constructor() : ListAdapter<Meal, MealAdapter.MealView
                 .error(R.drawable.ic_restaurent)
                 .transformations(CircleCropTransformation())
                 .listener(onError = { _, e ->
-                    defaultErrorHandler(e)
+                    defaultErrorLogger(e)
                 })
                 .target(image)
                 .build()

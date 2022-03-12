@@ -45,7 +45,6 @@ dependencies {
     implementation(libs.dagger.hilt)
     implementation(libs.bundles.retrofit)
     implementation(libs.bundles.room)
-    implementation(libs.bundles.rxjava)
     implementation(libs.facebook.shimmer)
 
     kapt(libs.room.compiler)
