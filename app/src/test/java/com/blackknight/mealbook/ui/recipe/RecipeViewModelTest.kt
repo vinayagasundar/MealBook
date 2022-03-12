@@ -3,12 +3,13 @@ package com.blackknight.mealbook.ui.recipe
 import com.blackknight.mealbook.data.entities.Ingredient
 import com.blackknight.mealbook.data.entities.Recipe
 import com.blackknight.mealbook.data.repo.RecipeRepo
-import com.blackknight.mealbook.fake.FakeSchedulerProvider
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.doSuspendableAnswer
 import org.mockito.kotlin.whenever
 
 class RecipeViewModelTest {
@@ -16,47 +17,46 @@ class RecipeViewModelTest {
     @Mock
     private lateinit var recipeRepo: RecipeRepo
 
-    private val schedulerProvider = FakeSchedulerProvider()
 
     private lateinit var viewModel: RecipeViewModel
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        viewModel = RecipeViewModel(recipeRepo, schedulerProvider)
+        viewModel = RecipeViewModel(recipeRepo)
     }
 
     @Test
     fun getRecipe() {
-        val recipe = Recipe(
-            id = "id",
-            name = "name",
-            category = "category",
-            instruction = "instruction",
-            thumbnail = "thumbnail",
-            youtube = "youtube",
-            ingredient = listOf(Ingredient("name1", "measurement1"))
-        )
-        whenever(recipeRepo.getRecipe("recipeId")).thenReturn(Single.just(recipe))
+        runBlocking {
+            val recipe = Recipe(
+                id = "id",
+                name = "name",
+                category = "category",
+                instruction = "instruction",
+                thumbnail = "thumbnail",
+                youtube = "youtube",
+                ingredient = listOf(Ingredient("name1", "measurement1"))
+            )
+            whenever(recipeRepo.getRecipe("recipeId")).thenReturn(recipe)
 
-        viewModel.getRecipe("recipeId")
-            .test()
-            .assertValue(Result.success(recipe))
-            .assertNoErrors()
-            .assertComplete()
-            .dispose()
+            val result = viewModel.getRecipe("recipeId")
+
+            Assert.assertEquals(Result.success(recipe), result)
+        }
     }
 
     @Test
     fun getRecipe_failure() {
-        val exception = Exception("Error")
-        whenever(recipeRepo.getRecipe("recipeId")).thenReturn(Single.error(exception))
+        runBlocking {
+            val exception = Exception("Error")
+            whenever(recipeRepo.getRecipe("recipeId")).doSuspendableAnswer {
+                throw exception
+            }
 
-        viewModel.getRecipe("recipeId")
-            .test()
-            .assertValue(Result.failure(exception))
-            .assertNoErrors()
-            .assertComplete()
-            .dispose()
+            val result = viewModel.getRecipe("recipeId")
+
+            Assert.assertEquals(Result.failure<Recipe>(exception), result)
+        }
     }
 }

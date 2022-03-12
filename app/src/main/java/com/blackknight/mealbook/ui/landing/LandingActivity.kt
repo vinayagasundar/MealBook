@@ -4,17 +4,19 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blackknight.mealbook.R
 import com.blackknight.mealbook.ui.landing.adapter.CategoryAdapter
 import com.blackknight.mealbook.ui.landing.adapter.MealAdapter
 import com.blackknight.mealbook.ui.recipe.RecipeDetailActivity
-import com.blackknight.mealbook.util.defaultErrorHandler
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -25,8 +27,6 @@ class LandingActivity : AppCompatActivity() {
 
     @Inject
     lateinit var mealAdapter: MealAdapter
-
-    private val disposable = CompositeDisposable()
 
     private val viewModel by viewModels<LandingViewModel>()
 
@@ -77,35 +77,37 @@ class LandingActivity : AppCompatActivity() {
             startActivity(RecipeDetailActivity.getIntent(this, meal))
         }
 
-        disposable.add(
-            viewModel.observeViewState()
-                .subscribeBy(defaultErrorHandler) { state ->
-                    when (state.loadingState) {
-                        is LoadingState.FullLoading -> fullLoading()
-                        is LoadingState.RecipeOnlyLoading -> recipeOnlyLoading()
-                        is LoadingState.Hide -> hide()
-                    }
-
-                    if (state.categories.isNotEmpty()) {
-                        categoryAdapter.submitList(state.categories)
-                    }
-
-                    if (state.meals.isNotEmpty()) {
-                        mealAdapter.submitList(state.meals)
-                    }
-
-                    if (state.isErrorState()) {
-                        val dialog = BottomSheetDialog(this).apply {
-                            setCancelable(false)
-                            setContentView(R.layout.dialog_no_data)
-                            findViewById<View>(R.id.btn_okay)?.setOnClickListener {
-                                dismiss()
-                            }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                viewModel.observeViewState()
+                    .collect { state ->
+                        when (state.loadingState) {
+                            is LoadingState.FullLoading -> fullLoading()
+                            is LoadingState.RecipeOnlyLoading -> recipeOnlyLoading()
+                            is LoadingState.Hide -> hide()
                         }
-                        dialog.show()
+
+                        if (state.categories.isNotEmpty()) {
+                            categoryAdapter.submitList(state.categories)
+                        }
+
+                        if (state.meals.isNotEmpty()) {
+                            mealAdapter.submitList(state.meals)
+                        }
+
+                        if (state.isErrorState()) {
+                            val dialog = BottomSheetDialog(this@LandingActivity).apply {
+                                setCancelable(false)
+                                setContentView(R.layout.dialog_no_data)
+                                findViewById<View>(R.id.btn_okay)?.setOnClickListener {
+                                    dismiss()
+                                }
+                            }
+                            dialog.show()
+                        }
                     }
-                }
-        )
+            }
+        }
     }
 
     private fun hide() {
@@ -139,10 +141,5 @@ class LandingActivity : AppCompatActivity() {
 
         tvRecipeTitle.visibility = View.GONE
         rvRecipe.visibility = View.GONE
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        disposable.dispose()
     }
 }

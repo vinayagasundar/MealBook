@@ -6,13 +6,14 @@ import com.blackknight.mealbook.data.mapper.Mapper
 import com.blackknight.mealbook.network.MealDBService
 import com.blackknight.mealbook.network.response.RecipeListResponse
 import com.blackknight.mealbook.network.response.RecipeResponse
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doSuspendableAnswer
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -38,60 +39,60 @@ class RecipeRepoImplTest {
 
     @Test
     fun `when getRecipe invoked if service return list then save it local and return recipe`() {
-        val mealResponse = RecipeResponse(
-            id = "id",
-            name = "name",
-            thumbnail = "thumbnail",
-            categories = "category"
-        )
-        val response = RecipeListResponse(listOf(mealResponse))
-        val recipe = Recipe(
-            id = "id",
-            name = "name",
-            thumbnail = "thumbnail",
-            category = "category",
-            instruction = "",
-            ingredient = emptyList(),
-            youtube = ""
-        )
-        val recipeList = listOf(recipe)
+        runBlocking {
+            val mealResponse = RecipeResponse(
+                id = "id",
+                name = "name",
+                thumbnail = "thumbnail",
+                categories = "category"
+            )
+            val response = RecipeListResponse(listOf(mealResponse))
+            val recipe = Recipe(
+                id = "id",
+                name = "name",
+                thumbnail = "thumbnail",
+                category = "category",
+                instruction = "",
+                ingredient = emptyList(),
+                youtube = ""
+            )
+            val recipeList = listOf(recipe)
 
-        whenever(mealDBService.getRecipe("recipeId")).thenReturn(Single.just(response))
-        whenever(mapper.map(mealResponse)).thenReturn(recipe)
-        whenever(recipeDao.insertOrUpdate(recipeList)).thenReturn(Completable.complete())
+            whenever(mealDBService.getRecipe("recipeId")).thenReturn(response)
+            whenever(mapper.map(mealResponse)).thenReturn(recipe)
 
-        recipeRepo.getRecipe("recipeId")
-            .test()
-            .assertValue(recipe)
-            .assertNoErrors()
-            .assertComplete()
-            .dispose()
+            val result = recipeRepo.getRecipe("recipeId")
 
-        verify(recipeDao, never()).getRecipe("recipeId")
+            Assert.assertEquals(recipe, result)
+
+            verify(recipeDao, never()).getRecipe("recipeId")
+            verify(recipeDao).insertOrUpdate(recipeList)
+        }
     }
 
     @Test
     fun `when getRecipe invoked and service throws error check the local database for result`() {
-        val recipe = Recipe(
-            id = "id",
-            name = "name",
-            thumbnail = "thumbnail",
-            category = "category",
-            instruction = "",
-            ingredient = emptyList(),
-            youtube = ""
-        )
+        runBlocking {
+            val recipe = Recipe(
+                id = "id",
+                name = "name",
+                thumbnail = "thumbnail",
+                category = "category",
+                instruction = "",
+                ingredient = emptyList(),
+                youtube = ""
+            )
 
-        whenever(mealDBService.getRecipe("recipeId")).thenReturn(Single.error(Exception("Error")))
-        whenever(recipeDao.getRecipe("recipeId")).thenReturn(Single.just(recipe))
+            whenever(mealDBService.getRecipe("recipeId")).doSuspendableAnswer {
+                throw Exception("Error")
+            }
+            whenever(recipeDao.getRecipe("recipeId")).thenReturn(recipe)
 
-        recipeRepo.getRecipe("recipeId")
-            .test()
-            .assertValue(recipe)
-            .assertNoErrors()
-            .assertComplete()
-            .dispose()
+            val result = recipeRepo.getRecipe("recipeId")
 
-        verify(mapper, never()).map(any())
+            Assert.assertEquals(recipe, result)
+
+            verify(mapper, never()).map(any())
+        }
     }
 }

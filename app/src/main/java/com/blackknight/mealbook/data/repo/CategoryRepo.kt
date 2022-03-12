@@ -5,11 +5,11 @@ import com.blackknight.mealbook.data.entities.Category
 import com.blackknight.mealbook.data.mapper.Mapper
 import com.blackknight.mealbook.network.MealDBService
 import com.blackknight.mealbook.network.response.CategoryResponse
-import io.reactivex.rxjava3.core.Single
+import java.lang.Exception
 import javax.inject.Inject
 
 interface CategoryRepo {
-    fun getCategories(): Single<List<Category>>
+    suspend fun getCategories(): List<Category>
 }
 
 class CategoryRepoImpl @Inject constructor(
@@ -17,19 +17,21 @@ class CategoryRepoImpl @Inject constructor(
     private val mealDBService: MealDBService,
     private val mapper: Mapper<CategoryResponse, Category>
 ) : CategoryRepo {
-    override fun getCategories(): Single<List<Category>> {
-        return getAndSaveCategories()
-            .onErrorResumeNext { categoryDao.getCategories() }
+    override suspend fun getCategories(): List<Category> {
+        val categories = getAndSaveCategories()
+        return categories.ifEmpty { categoryDao.getCategories() }
     }
 
-    private fun getAndSaveCategories(): Single<List<Category>> {
-        return mealDBService.getCategories()
-            .map { response ->
-                response.list.map { mapper.map(it) }
-            }
-            .flatMap {
-                categoryDao.insertOrUpdate(it)
-                    .andThen(Single.just(it))
-            }
+    private suspend fun getAndSaveCategories(): List<Category> {
+        return try {
+            val categoriesResponse = mealDBService.getCategories()
+            categoriesResponse.list.map { mapper.map(it) }
+                .also { list ->
+                    categoryDao.insertOrUpdate(list)
+                }
+        } catch (e: Exception) {
+            emptyList()
+        }
+
     }
 }

@@ -6,11 +6,11 @@ import com.blackknight.mealbook.data.entities.Meal
 import com.blackknight.mealbook.data.mapper.Mapper
 import com.blackknight.mealbook.network.MealDBService
 import com.blackknight.mealbook.network.response.MealResponse
-import io.reactivex.rxjava3.core.Single
+import java.lang.Exception
 import javax.inject.Inject
 
 interface MealRepo {
-    fun getMealList(category: Category): Single<List<Meal>>
+    suspend fun getMealList(category: Category): List<Meal>
 }
 
 
@@ -19,25 +19,22 @@ class MealRepoImpl @Inject constructor(
     private val mealDBService: MealDBService,
     private val mapper: Mapper<MealResponse, Meal>
 ) : MealRepo {
-    override fun getMealList(category: Category): Single<List<Meal>> {
-        return getAndSaveMeals(category)
-            .onErrorResumeNext {
-                mealDao.getMealList(category.id)
-            }
-
+    override suspend fun getMealList(category: Category): List<Meal> {
+        val meals = getAndSaveMeals(category)
+        return meals.ifEmpty { mealDao.getMealList(category.id) }
     }
 
-    private fun getAndSaveMeals(category: Category): Single<List<Meal>> {
-        return mealDBService.getMealByCategory(category.name)
-            .map { response ->
-                response.list.map {
-                    mapper.map(it).copy(categoryId = category.id)
-                }
-            }
-            .flatMap {
+    private suspend fun getAndSaveMeals(category: Category): List<Meal> {
+        return try {
+            val response = mealDBService.getMealByCategory(category.name)
+            response.list.map {
+                mapper.map(it).copy(categoryId = category.id)
+            }.also {
                 mealDao.insertOrUpdate(it)
-                    .andThen(Single.just(it))
             }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 }
 
